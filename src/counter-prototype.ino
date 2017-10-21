@@ -17,16 +17,21 @@
 
 
 char auth[] = "f2f1dd1e59c84f75addbc1b24027c4c1";
-int blynk_sVal = 0; //value from blynk slider
-int bulletCount = 0;
+int blynk_sVal = 0;   //value from blynk slider
+int bulletCount = 0;  //used to store the count
+int raw = 0;          //read raw input from A5
+double resistVal = 0;    //stores resistance measured
+double rollingSum = 0;   //make an rolling average
 
 int LOW_MAP = 1500;   //lower analogRead
 int HIGH_MAP = 2500;  //upper analogRead
 int FULL_MAG = 30;    //full mag number
+int R_KNOWN = 51;     //known resistance from GND to A5
+double V_IN = 3.3;    //input voltage
+double V_OUT = 0.0;   //Ground voltage
 
 BlynkTimer timer;
 LiquidCrystal lcd(D0, D1, D2, D3, D4, D5);
-
 
 
 BLYNK_WRITE(V1)
@@ -58,7 +63,18 @@ void loop()
 
   bulletCount = map(blynk_sVal, LOW_MAP, HIGH_MAP, FULL_MAG, 0);
 
+  raw = analogRead(A5); //uncomment this line for measured resistances
+  V_OUT = V_IN*raw/4094; //can possibly equal exactly 3.3
+  for (int i = 0; i<10; i++)
+  {
+    rollingSum = rollingSum + (V_IN-V_OUT)*R_KNOWN/V_OUT;
+    delay(10);
+  }
+  resistVal=rollingSum/10;
   lcd.clear();
-  lcd.print(bulletCount);
+  lcd.print(String("Bullets: ") + String(bulletCount));
+  lcd.setCursor(0,1);
+  lcd.print(String("Resistance: ") + String(resistVal));
   delay(100);
+  rollingSum=0;
 }
