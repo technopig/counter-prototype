@@ -78,3 +78,9 @@ void loop()
   delay(100);
   rollingSum=0;
 }
+
+/*
+To Do:
+Add functionality to map resistances 0.0-3.0 ohms to 0-30 bullets.
+This is 0.1 ohms per bullet - should be feasible.
+*/
